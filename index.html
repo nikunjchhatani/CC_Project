@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather Dashboard</title>
+  <style>
+    body { font-family: Arial; background: #eaf4ff; text-align: center; margin-top: 100px; }
+    input { padding: 10px; }
+    button { padding: 10px 20px; background-color: #2196f3; color: white; border: none; border-radius: 5px; }
+    #result { margin-top: 30px; font-size: 20px; }
+  </style>
+</head>
+<body>
+  <h1>☁️ Weather Dashboard</h1>
+  <input id="city" type="text" placeholder="Enter city">
+  <button onclick="getWeather()">Get Weather</button>
+  <div id="result"></div>
+
+  <script>
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      const res = await fetch(`/weather?city=${city}`);
+      const data = await res.json();
+      if (data.error) {
+        document.getElementById("result").innerHTML = data.error;
+      } else {
+        document.getElementById("result").innerHTML = `
+          🌆 City: ${data.city}<br>
+          🌡️ Temp: ${data.temperature}°C<br>
+          💧 Humidity: ${data.humidity}%<br>
+          🌀 Pressure: ${data.pressure} hPa<br>
+          🌈 Condition: ${data.description}
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB_REPO = 'ynikunjchhatani/weather-dashboard'
+        EC2_USER = 'ubuntu'
+        EC2_HOST = 'your-ec2-public-ip'
+        EC2_KEY_PATH = '/var/lib/jenkins/keys/your-key.pem'
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/yourusername/weather-dashboard.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t weather-dashboard .'
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        sh """
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker tag weather-dashboard $DOCKER_HUB_REPO
+                        docker push $DOCKER_HUB_REPO
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EC2') {
+            steps {
+                script {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i $EC2_KEY_PATH $EC2_USER@$EC2_HOST '
+                        docker pull $DOCKER_HUB_REPO &&
+                        docker stop weather || true &&
+                        docker rm weather || true &&
+                        docker run -d -p 5000:5000 --name weather $DOCKER_HUB_REPO
+                    '
+                    """
+                }
+            }
+        }
+    }
+}
