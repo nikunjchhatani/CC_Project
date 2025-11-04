@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard 🌤️</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom right, #6dd5fa, #2980b9);
+            color: white;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            width: 350px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        input, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+        }
+        input {
+            width: 70%;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2e86c1;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☁️ Weather Dashboard</h1>
+        <p>Enter a city name to get real-time weather info</p>
+        <input type="text" id="cityInput" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        async function getWeather() {
+            const city = document.getElementById("cityInput").value;
+            const resultDiv = document.getElementById("result");
+
+            if (!city) {
+                resultDiv.innerHTML = "<p>Please enter a city name.</p>";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/weather?city=${city}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h2>${data.city}</h2>
+                        <p>🌡️ Temperature: ${data.temperature}°C</p>
+                        <p>💨 Wind Speed: ${data.wind_speed} m/s</p>
+                        <p>💧 Humidity: ${data.humidity}%</p>
+                        <p>🌈 Description: ${data.description}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = "<p>Error fetching weather data.</p>";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,9 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify , render_template
 import requests
 
 app = Flask(__name__)
 
-API_KEY = "your_openweather_api_key"
+API_KEY = "3b56a8b3af778301dba93f8c1dde45d6"
+
+
+
+
+#Homepage route
+@app.route('/')
+def home():
+    return render_template('homepage.html')
+
+
 
 @app.route('/weather', methods=['GET'])
 def get_weather():
